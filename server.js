@@ -14,7 +14,7 @@ const app = express();
 // Middleware
 const allowedOrigins = process.env.FRONTEND_URL 
   ? [process.env.FRONTEND_URL, 'http://localhost:3001', 'http://localhost:3000']
-  : '*';
+  : ['http://localhost:3001', 'http://localhost:3000', 'https://blog-platform-gules-zeta.vercel.app'];
 
 app.use(cors({
   origin: allowedOrigins,
@@ -29,10 +29,24 @@ const sanitize = require('./middleware/sanitize');
 app.use(rateLimiter(15 * 60 * 1000, 100)); // 100 requests per 15 minutes
 app.use(sanitize);
 
+// Basic route (before API routes)
+app.get('/', (req, res) => {
+  res.json({ message: 'Blog Platform API is running' });
+});
+
 // Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/posts', require('./routes/posts'));
 app.use('/api/admin', require('./routes/admin'));
+
+// 404 handler for undefined routes
+app.use((req, res) => {
+  res.status(404).json({ 
+    success: false, 
+    message: 'Route not found',
+    path: req.path 
+  });
+});
 
 // Error handler (must be last)
 const errorHandler = require('./middleware/errorHandler');
@@ -66,10 +80,5 @@ mongoose.connect(MONGODB_URI)
   console.error('❌ ============================================\n');
   logger.error('MongoDB connection error:', err);
   process.exit(1);
-});
-
-// Basic route
-app.get('/', (req, res) => {
-  res.json({ message: 'Blog Platform API is running' });
 });
 
