@@ -57,6 +57,13 @@ mongoose.connect(MONGODB_URI)
   });
 })
 .catch(err => {
+  console.error('\n❌ ============================================');
+  console.error('❌ MONGODB CONNECTION FAILED');
+  console.error('❌ ============================================');
+  console.error('❌ Error:', err.message);
+  console.error('❌ Check your MONGODB_URI in Render environment variables');
+  console.error('❌ Make sure MongoDB Atlas allows connections from anywhere (0.0.0.0/0)');
+  console.error('❌ ============================================\n');
   logger.error('MongoDB connection error:', err);
   process.exit(1);
 });

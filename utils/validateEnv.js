@@ -10,10 +10,16 @@ const validateEnv = () => {
   });
 
   if (missing.length > 0) {
-    console.error('❌ Missing required environment variables:', missing.join(', '));
-    console.error('Please set these in your Render environment variables.');
+    console.error('\n❌ ============================================');
+    console.error('❌ MISSING REQUIRED ENVIRONMENT VARIABLES');
+    console.error('❌ ============================================');
+    console.error('❌ Missing:', missing.join(', '));
+    console.error('❌ Please set these in Render Dashboard → Environment');
+    console.error('❌ ============================================\n');
     process.exit(1);
   }
+  
+  console.log('✅ Environment variables validated');
 };
 
 module.exports = validateEnv;
