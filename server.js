@@ -47,12 +47,12 @@ const logger = require('./utils/logger');
 mongoose.connect(MONGODB_URI)
 .then(() => {
   logger.info('MongoDB Connected');
-  app.listen(PORT, () => {
+  app.listen(PORT, '0.0.0.0', () => {
     logger.info('\n=================================');
     logger.info('🚀 BACKEND SERVER STARTED');
     logger.info('=================================');
-    logger.info(`📍 Server running on: http://localhost:${PORT}`);
-    logger.info(`📍 API Base URL: http://localhost:${PORT}/api`);
+    logger.info(`📍 Server running on: http://0.0.0.0:${PORT}`);
+    logger.info(`📍 API Base URL: http://0.0.0.0:${PORT}/api`);
     logger.info('=================================\n');
   });
 })
