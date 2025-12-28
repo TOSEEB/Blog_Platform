@@ -60,6 +60,15 @@ app.get('/', (req, res) => {
   res.json({ message: 'Blog Platform API is running' });
 });
 
+// Health check / Keep-alive endpoint (for cron jobs to prevent spin-down)
+app.get('/health', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
+});
+
 // Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/posts', require('./routes/posts'));
