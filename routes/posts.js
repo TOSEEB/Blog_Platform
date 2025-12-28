@@ -163,8 +163,11 @@ router.put('/:id', [
       return res.status(404).json({ success: false, message: 'Post not found' });
     }
 
-    // Check if user is the author
-    if (post.author.toString() !== req.user.userId) {
+    // Check if user is the author - convert both to strings for reliable comparison
+    const authorId = String(post.author);
+    const userId = String(req.user.userId);
+    
+    if (authorId !== userId) {
       return res.status(403).json({ success: false, message: 'Not authorized' });
     }
 
@@ -198,8 +201,11 @@ router.delete('/:id', auth, async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Post not found' });
     }
 
-    // Check if user is the author
-    if (post.author.toString() !== req.user.userId) {
+    // Check if user is the author - convert both to strings for reliable comparison
+    const authorId = String(post.author);
+    const userId = String(req.user.userId);
+    
+    if (authorId !== userId) {
       return res.status(403).json({ success: false, message: 'Not authorized' });
     }
 
@@ -221,13 +227,14 @@ router.put('/:id/like', auth, async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Post not found' });
     }
 
-    const userId = req.user.userId;
-    const isLiked = post.likes.includes(userId);
+    const userId = String(req.user.userId);
+    // Check if user has already liked - convert ObjectIds to strings for comparison
+    const isLiked = post.likes.some(id => String(id) === userId);
 
     if (isLiked) {
-      post.likes = post.likes.filter(id => id.toString() !== userId);
+      post.likes = post.likes.filter(id => String(id) !== userId);
     } else {
-      post.likes.push(userId);
+      post.likes.push(req.user.userId); // Push the original userId (will be converted to ObjectId by Mongoose)
     }
 
     await post.save();
