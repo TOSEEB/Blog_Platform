@@ -2,9 +2,6 @@ import axios from 'axios';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
-// Set default base URL for axios
-axios.defaults.baseURL = API_URL.replace('/api', '');
-
 // Auth API
 export const register = (userData) => axios.post(`${API_URL}/auth/register`, userData).then(res => {
   return { data: res.data };
