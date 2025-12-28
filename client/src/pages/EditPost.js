@@ -35,12 +35,29 @@ const EditPost = () => {
   const fetchPost = async () => {
     try {
       const res = await getPost(id);
-      const post = res.data;
+      const post = res.data.post || res.data;
 
-      // Check if user is the author
-      const userId = user?._id || user?.id;
-      const authorId = post.author?._id || post.author;
-      if (user && (!userId || !authorId || userId.toString() !== authorId.toString())) {
+      // Check if user is the author - ensure reliable ID comparison
+      if (!user) {
+        toast.error('Please login to edit posts');
+        navigate('/login');
+        return;
+      }
+
+      const userId = String(user.id || user._id);
+      // Handle both populated author object and plain author ID
+      let authorId;
+      if (post.author) {
+        if (typeof post.author === 'object' && post.author._id) {
+          authorId = String(post.author._id);
+        } else if (typeof post.author === 'object' && post.author.id) {
+          authorId = String(post.author.id);
+        } else {
+          authorId = String(post.author);
+        }
+      }
+
+      if (!authorId || userId !== authorId) {
         toast.error('You are not authorized to edit this post');
         navigate('/');
         return;
