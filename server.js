@@ -19,7 +19,11 @@ const getAllowedOrigins = () => {
   
   if (process.env.FRONTEND_URL) {
     // Support comma-separated URLs in FRONTEND_URL (e.g., "https://app1.vercel.app,https://app2.vercel.app")
-    const frontendUrls = process.env.FRONTEND_URL.split(',').map(url => url.trim()).filter(Boolean);
+    // Remove trailing slashes for consistent matching (browsers send origins without trailing slashes)
+    const frontendUrls = process.env.FRONTEND_URL
+      .split(',')
+      .map(url => url.trim().replace(/\/+$/, '')) // Remove trailing slashes
+      .filter(Boolean);
     origins.push(...frontendUrls);
   }
   
@@ -33,21 +37,13 @@ logger.info('CORS Allowed Origins:', allowedOrigins);
 if (!process.env.FRONTEND_URL) {
   logger.warn('⚠️  FRONTEND_URL environment variable not set! CORS may block production requests.');
   logger.warn('⚠️  Set FRONTEND_URL in Render environment variables to your Vercel domain(s)');
+} else {
+  logger.info('FRONTEND_URL from environment:', process.env.FRONTEND_URL);
 }
 
+// Use simple array-based CORS configuration (more reliable)
 app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, Postman, or curl)
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      logger.warn(`CORS blocked request from origin: ${origin}`);
-      logger.warn(`Allowed origins: ${allowedOrigins.join(', ')}`);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: allowedOrigins,
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
