@@ -11,10 +11,21 @@ validateEnv();
 
 const app = express();
 
-// Middleware
-const allowedOrigins = process.env.FRONTEND_URL 
-  ? [process.env.FRONTEND_URL, 'http://localhost:3001', 'http://localhost:3000']
-  : ['http://localhost:3001', 'http://localhost:3000', 'https://blog-platform-gules-zeta.vercel.app'];
+// Middleware - CORS Configuration
+// Supports multiple frontend URLs via FRONTEND_URL environment variable (comma-separated)
+const getAllowedOrigins = () => {
+  const origins = ['http://localhost:3001', 'http://localhost:3000']; // Always allow localhost for development
+  
+  if (process.env.FRONTEND_URL) {
+    // Support comma-separated URLs in FRONTEND_URL (e.g., "https://app1.vercel.app,https://app2.vercel.app")
+    const frontendUrls = process.env.FRONTEND_URL.split(',').map(url => url.trim()).filter(Boolean);
+    origins.push(...frontendUrls);
+  }
+  
+  return origins;
+};
+
+const allowedOrigins = getAllowedOrigins();
 
 app.use(cors({
   origin: allowedOrigins,
